@@ -1,6 +1,6 @@
 ### IntelliJ IDEA ###
 out/
-!**/src/main/**/out/
+!**/src/mtsOnlinePay/**/out/
 !**/src/test/**/out/
 .idea
 
@@ -13,7 +13,7 @@ out/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
+!**/src/mtsOnlinePay/**/bin/
 !**/src/test/**/bin/
 
 ### NetBeans ###
