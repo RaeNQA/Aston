@@ -1,3 +1,4 @@
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,7 +7,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class mtsOnlinePay {
 
         private WebDriver driver;
+    SoftAssertions softAssertions = new SoftAssertions();
 
         @BeforeEach
         public void setUp () {
@@ -24,8 +30,10 @@ public class mtsOnlinePay {
             driver = new ChromeDriver(options);
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
             driver.get("https://www.mts.by/");
+            WebElement element = new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.presenceOfElementLocated((By.xpath( "//div[@class=\"pay__wrapper\"]/h2"))));
 
-            WebElement acceptCookiesButton = driver.findElement(By.xpath("//*[@id=\"cookie-agree\"]"));
+            WebElement acceptCookiesButton = driver.findElement(By.xpath("//button[@id=\"cookie-agree\"]"));
             if (acceptCookiesButton.isDisplayed()) {
                 acceptCookiesButton.click();
             }
@@ -40,31 +48,32 @@ public class mtsOnlinePay {
 
         @Test
         public void testBlockTitle () {
-            WebElement blockTitle = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/h2"));
 
+            WebElement blockTitle = driver.findElement(By.xpath("//div[@class=\"pay__wrapper\"]/h2"));
             String actualTitle = blockTitle.getText();
-
-            String expectedTitle = "Онлайн пополнение\nбез комиссии";
+            String expectedTitle = "Онлайн пополнение\nбез комиссии1";
             assertEquals(expectedTitle, actualTitle, "Текст блока не соответствует ожидаемому");
         }
         @Test
         public void testBlock() {
-            WebElement blockCheck = driver.findElement(By.xpath("//*[contains(@class, 'pay__wrapper')]"));
+            WebElement blockCheck = driver.findElement(By.xpath("//div[@class= 'pay__wrapper']"));
             assertNotNull(blockCheck,"Блок онлайн оплаты отсутствует");
 
         }
         @Test
         public void testPaymentSystemLogos () {
-            WebElement visaLogo = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[2]/ul/li[1]/img"));
-            WebElement visaVerified = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[2]/ul/li[2]/img"));
-            WebElement mastercardLogo = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[2]/ul/li[3]/img"));
-            WebElement masterCardSecure = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[2]/ul/li[4]/img"));
-            WebElement belkartLogo = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[2]/ul/li[5]/img"));
-            assertNotNull(visaLogo, "Логотип Visa не найден");
-            assertNotNull(visaVerified,"Логотип Verified By Visa не найден");
-            assertNotNull(mastercardLogo, "Логотип MasterCard не найден");
-            assertNotNull(masterCardSecure, "Логотип MasterCard Secure Code не найден");
-            assertNotNull(belkartLogo, "Логотип Белкарт не найден");
+
+            WebElement visaLogo = driver.findElement(By.xpath("/html//ul/li[1]/img"));
+            WebElement visaVerified = driver.findElement(By.xpath("/html//ul/li[2]/img"));
+            WebElement mastercardLogo = driver.findElement(By.xpath("/html//ul/li[3]/img"));
+            WebElement masterCardSecure = driver.findElement(By.xpath("/html//ul/li[4]/img"));
+            WebElement belkartLogo = driver.findElement(By.xpath("/html//ul/li[5]/img"));
+
+            softAssertions.assertThat(visaLogo).as("Логотип Visa не найден").isNotNull();
+            softAssertions.assertThat(visaVerified).as("Логотип Verified By Visa не найден").isNotNull();
+            softAssertions.assertThat(mastercardLogo).as("Логотип MasterCard не найден").isNotNull();
+            softAssertions.assertThat(masterCardSecure).as("Логотип MasterCard Secure Code не найден").isNotNull();
+            softAssertions.assertThat(belkartLogo).as("Логотип Белкарт не найден").isNotNull();
         }
 
         @Test
@@ -79,10 +88,10 @@ public class mtsOnlinePay {
         @Test
         public void testTopUpService () throws InterruptedException  {
 
-            WebElement serviceDropdown = driver.findElement(By.id("pay-section"));
+            WebElement serviceDropdown = driver.findElement(By.xpath("//span[@class=\"select__now\"]"));
             serviceDropdown.click();
 
-            WebElement serviceOption = driver.findElement(By.xpath("//*[@id=\"pay-section\"]/div/div/div[2]/section/div/div[1]/div[1]/div[2]/button/span[1]"));
+            WebElement serviceOption = driver.findElement(By.xpath("//div[@class=\"pay__forms\"]"));
             serviceOption.click();
 
             WebElement phoneNumberField = driver.findElement(By.id("connection-phone"));
@@ -94,7 +103,9 @@ public class mtsOnlinePay {
             WebElement emailField = driver.findElement(By.id("connection-email"));
             emailField.sendKeys("test@example.com");
 
-            WebElement continueButton = driver.findElement(By.xpath("//*[@id=\"pay-connection\"]/button"));
+            WebElement continueButton = driver.findElement(By.xpath("//form[@class=\"pay-form opened\"]/button"));
+            softAssertions.assertThat(continueButton).as("Кнопка не найдена").isNotNull();
+            softAssertions.assertThat(continueButton.isDisplayed()).as("Кнопка не видима").isTrue();
             continueButton.click();
         }
     }
